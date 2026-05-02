@@ -1,0 +1,197 @@
+openapi: 3.0.3
+info:
+  title: Booking Manager Day-Based Seat Booking API
+  version: 0.2.0
+  description: REST contract for viewing and creating seat bookings scoped to a calendar day.
+paths:
+  /api/seats/availability:
+    get:
+      summary: List seat availability for a selected day
+      operationId: listSeatAvailability
+      parameters:
+        - name: day
+          in: query
+          required: true
+          description: Calendar day to evaluate, formatted as YYYY-MM-DD.
+          schema:
+            type: string
+            format: date
+            example: "2026-05-02"
+      responses:
+        "200":
+          description: Day-specific seat availability.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - day
+                  - seats
+                properties:
+                  day:
+                    type: string
+                    format: date
+                    example: "2026-05-02"
+                  seats:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Seat"
+        "400":
+          description: Missing, malformed, or out-of-range day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "503":
+          description: Availability service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/bookings:
+    post:
+      summary: Create a booking for one seat on one day
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingRequest"
+      responses:
+        "201":
+          description: Booking created.
+          headers:
+            Location:
+              description: Created booking resource URL.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Seat was not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Seat is already booked for the requested day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Booking service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Seat:
+      type: object
+      required:
+        - id
+        - label
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+          example: A1
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - OCCUPIED
+    CreateBookingRequest:
+      type: object
+      required:
+        - seatId
+        - customerId
+        - bookedDay
+      properties:
+        seatId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        bookedDay:
+          type: string
+          format: date
+          example: "2026-05-02"
+    Booking:
+      type: object
+      required:
+        - id
+        - seatId
+        - customerId
+        - bookedDay
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        seatId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        bookedDay:
+          type: string
+          format: date
+          example: "2026-05-02"
+        status:
+          type: string
+          enum:
+            - ACTIVE
+        createdAt:
+          type: string
+          format: date-time
+    FieldError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: BOOKING_CONFLICT
+        message:
+          type: string
+          example: Seat A1 is unavailable for 2026-05-02.
+        details:
+          type: object
+          additionalProperties: true
+    ValidationError:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          properties:
+            fieldErrors:
+              type: array
+              items:
+                $ref: "#/components/schemas/FieldError"
