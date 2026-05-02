@@ -20,7 +20,9 @@ describe('SeatGrid', () => {
     );
 
     expect(screen.getByRole('button', { name: 'A1, available' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'A2, occupied' })).toBeDisabled();
+    const occupiedSeat = screen.getByRole('button', { name: 'A2, occupied' });
+    expect(occupiedSeat).toBeDisabled();
+    expect(occupiedSeat).toHaveAttribute('data-status', 'OCCUPIED');
 
     await userEvent.click(screen.getByRole('button', { name: 'A1, available' }));
     expect(onSelectSeat).toHaveBeenCalledWith({ id: '1', label: 'A1', status: 'AVAILABLE' });
