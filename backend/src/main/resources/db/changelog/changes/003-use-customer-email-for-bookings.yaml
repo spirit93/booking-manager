@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-use-customer-email-for-bookings
+      author: codex
+      changes:
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: customer_email
+                  type: varchar(254)
+                  value: unknown@example.invalid
+                  constraints:
+                    nullable: false
+        - dropColumn:
+            tableName: bookings
+            columnName: customer_id
+      rollback:
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: customer_id
+                  type: uuid
+                  value: 00000000-0000-0000-0000-000000000000
+                  constraints:
+                    nullable: false
+        - dropColumn:
+            tableName: bookings
+            columnName: customer_email

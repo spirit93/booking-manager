@@ -14,7 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.vits.booking.support.MvcTestSupport.BOOKED_DAY;
-import static com.vits.booking.support.MvcTestSupport.CUSTOMER_ID;
+import static com.vits.booking.support.MvcTestSupport.CUSTOMER_EMAIL;
 import static com.vits.booking.support.MvcTestSupport.SEAT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -39,6 +39,17 @@ class BookingControllerErrorTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void rejectsInvalidCustomerEmail() throws Exception {
+        mvc.perform(post("/api/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"seatId":"%s","customerEmail":"not-an-email","bookedDay":"%s"}
+                                """.formatted(SEAT_ID, BOOKED_DAY)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("customerEmail"));
     }
 
     @Test
@@ -70,7 +81,7 @@ class BookingControllerErrorTest {
         return mvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                        {"seatId":"%s","customerId":"%s","bookedDay":"%s"}
-                        """.formatted(SEAT_ID, CUSTOMER_ID, BOOKED_DAY)));
+                        {"seatId":"%s","customerEmail":"%s","bookedDay":"%s"}
+                        """.formatted(SEAT_ID, CUSTOMER_EMAIL, BOOKED_DAY)));
     }
 }

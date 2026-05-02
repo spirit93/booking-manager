@@ -29,8 +29,8 @@ public class BookingEntity {
     @JoinColumn(name = "seat_id", nullable = false)
     private SeatEntity seat;
 
-    @Column(name = "customer_id", nullable = false)
-    private UUID customerId;
+    @Column(name = "customer_email", nullable = false, length = 254)
+    private String customerEmail;
 
     @Column(name = "booked_day", nullable = false)
     private LocalDate bookedDay;
@@ -48,10 +48,10 @@ public class BookingEntity {
     protected BookingEntity() {
     }
 
-    public BookingEntity(UUID id, SeatEntity seat, UUID customerId, LocalDate bookedDay, BookingStatus status, Instant createdAt, Instant updatedAt) {
+    public BookingEntity(UUID id, SeatEntity seat, String customerEmail, LocalDate bookedDay, BookingStatus status, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.seat = seat;
-        this.customerId = customerId;
+        this.customerEmail = customerEmail;
         this.bookedDay = bookedDay;
         this.status = status;
         this.createdAt = createdAt;
@@ -66,8 +66,8 @@ public class BookingEntity {
         return seat;
     }
 
-    public UUID getCustomerId() {
-        return customerId;
+    public String getCustomerEmail() {
+        return customerEmail;
     }
 
     public LocalDate getBookedDay() {

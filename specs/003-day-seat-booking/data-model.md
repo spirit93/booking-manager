@@ -28,7 +28,7 @@ Represents a confirmed reservation for one seat, one customer, and one calendar 
 
 - `id` (UUID): Stable booking identifier.
 - `seatId` (UUID): Seat being reserved.
-- `customerId` (UUID): Customer or user associated with the booking.
+- `customerEmail` (string): Customer email associated with the booking.
 - `bookedDay` (date): Calendar day reserved, formatted as `YYYY-MM-DD`.
 - `status` (BookingStatus): Booking lifecycle status. Initial scope uses `ACTIVE`.
 - `createdAt` (instant): Timestamp when the booking was created.
@@ -36,12 +36,12 @@ Represents a confirmed reservation for one seat, one customer, and one calendar 
 **Relationships**
 
 - Each booking belongs to one seat.
-- Each booking belongs to one customer/user identity.
+- Each booking belongs to one customer email.
 
 **Validation Rules**
 
 - `seatId` is required and must exist.
-- `customerId` is required.
+- `customerEmail` is required and must be a valid email address.
 - `bookedDay` is required, must parse as an ISO calendar date, and must be inside the supported booking range.
 - Only one active booking may exist for the same `seatId` and `bookedDay`.
 
@@ -74,7 +74,7 @@ Represents the person associated with a booking.
 
 **Fields**
 
-- `customerId` (UUID): Identifier sent with booking requests.
+- `customerEmail` (string): Email sent with booking requests.
 
 **Relationships**
 
@@ -82,5 +82,5 @@ Represents the person associated with a booking.
 
 **Validation Rules**
 
-- `customerId` must be present when creating a booking.
+- `customerEmail` must be present and valid when creating a booking.
 - This feature does not add customer profile management.

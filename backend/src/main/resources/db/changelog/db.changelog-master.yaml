@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changes/001-create-seat-booking-schema.yaml
   - include:
       file: db/changelog/changes/002-add-booked-day-to-bookings.yaml
+  - include:
+      file: db/changelog/changes/003-use-customer-email-for-bookings.yaml

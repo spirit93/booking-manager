@@ -15,7 +15,7 @@ describe('useCreateBooking', () => {
         json({
           id: 'booking-1',
           seatId: 'seat-1',
-          customerId: 'customer-1',
+          customerEmail: 'customer@example.com',
           bookedDay: '2026-05-02',
           status: 'ACTIVE',
           createdAt: '2026-05-02T00:00:00Z'
@@ -25,7 +25,7 @@ describe('useCreateBooking', () => {
 
     const { result } = renderHook(() => useCreateBooking(refresh));
 
-    await act(() => result.current.submit('seat-1', 'customer-1', '2026-05-02'));
+    await act(() => result.current.submit('seat-1', 'customer@example.com', '2026-05-02'));
 
     await waitFor(() => expect(result.current.booking?.id).toBe('booking-1'));
     expect(refresh).toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe('useCreateBooking', () => {
 
     const { result } = renderHook(() => useCreateBooking(refresh));
 
-    await act(() => result.current.submit('seat-1', 'customer-1', '2026-05-02'));
+    await act(() => result.current.submit('seat-1', 'customer@example.com', '2026-05-02'));
 
     await waitFor(() => expect(result.current.error?.message).toContain('2026-05-02'));
     expect(refresh).toHaveBeenCalled();
