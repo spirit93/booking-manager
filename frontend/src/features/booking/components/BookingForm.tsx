@@ -3,13 +3,14 @@ import type { Seat } from '../types';
 
 interface BookingFormProps {
   selectedSeat: Seat | null;
+  selectedDay: string;
   isPending: boolean;
   onSubmit: (customerId: string) => Promise<void>;
 }
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function BookingForm({ selectedSeat, isPending, onSubmit }: BookingFormProps) {
+export function BookingForm({ selectedSeat, selectedDay, isPending, onSubmit }: BookingFormProps) {
   const [customerId, setCustomerId] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const canSubmit = Boolean(selectedSeat) && !isPending;
@@ -32,7 +33,7 @@ export function BookingForm({ selectedSeat, isPending, onSubmit }: BookingFormPr
     <form className="booking-form" onSubmit={handleSubmit} noValidate>
       <h2>Book a seat</h2>
       <p className="status-copy" aria-live="polite">
-        {selectedSeat ? `Selected seat ${selectedSeat.label}` : 'No seat selected'}
+        {selectedSeat ? `Selected seat ${selectedSeat.label} for ${selectedDay}` : `No seat selected for ${selectedDay}`}
       </p>
       <div className="field">
         <label htmlFor="customerId">Customer ID</label>

@@ -3,6 +3,7 @@ package com.vits.booking.booking;
 import com.vits.booking.seat.SeatEntity;
 import com.vits.booking.seat.SeatRepository;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +32,32 @@ class ActiveBookingUniquenessTest {
                 now,
                 now
         ));
-        bookingRepository.saveAndFlush(newBooking(seat));
+        bookingRepository.saveAndFlush(newBooking(seat, LocalDate.parse("2026-05-02")));
 
-        assertThatThrownBy(() -> bookingRepository.saveAndFlush(newBooking(seat)))
+        assertThatThrownBy(() -> bookingRepository.saveAndFlush(newBooking(seat, LocalDate.parse("2026-05-02"))))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
-    private BookingEntity newBooking(SeatEntity seat) {
+    @Test
+    void databaseAllowsSameSeatOnDifferentDays() {
+        Instant now = Instant.now();
+        SeatEntity seat = seatRepository.save(new SeatEntity(
+                UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9902"),
+                "A2",
+                now,
+                now
+        ));
+        bookingRepository.saveAndFlush(newBooking(seat, LocalDate.parse("2026-05-02")));
+
+        bookingRepository.saveAndFlush(newBooking(seat, LocalDate.parse("2026-05-03")));
+    }
+
+    private BookingEntity newBooking(SeatEntity seat, LocalDate bookedDay) {
         return new BookingEntity(
                 UUID.randomUUID(),
                 seat,
                 UUID.randomUUID(),
+                bookedDay,
                 BookingStatus.ACTIVE,
                 Instant.now(),
                 Instant.now()

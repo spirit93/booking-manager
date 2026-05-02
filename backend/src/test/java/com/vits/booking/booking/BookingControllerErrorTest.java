@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.vits.booking.support.MvcTestSupport.BOOKED_DAY;
 import static com.vits.booking.support.MvcTestSupport.CUSTOMER_ID;
 import static com.vits.booking.support.MvcTestSupport.SEAT_ID;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,10 +51,11 @@ class BookingControllerErrorTest {
 
     @Test
     void mapsConflict() throws Exception {
-        when(bookingService.createBooking(any())).thenThrow(new BookingConflictException("Selected seat is no longer available.", Map.of("seatId", SEAT_ID)));
+        when(bookingService.createBooking(any())).thenThrow(new BookingConflictException("Selected seat is no longer available for " + BOOKED_DAY + ".", Map.of("seatId", SEAT_ID, "bookedDay", BOOKED_DAY)));
 
         performValidPost().andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("SEAT_UNAVAILABLE"));
+                .andExpect(jsonPath("$.code").value("BOOKING_CONFLICT"))
+                .andExpect(jsonPath("$.details.bookedDay").value(BOOKED_DAY));
     }
 
     @Test
@@ -68,7 +70,7 @@ class BookingControllerErrorTest {
         return mvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                        {"seatId":"%s","customerId":"%s"}
-                        """.formatted(SEAT_ID, CUSTOMER_ID)));
+                        {"seatId":"%s","customerId":"%s","bookedDay":"%s"}
+                        """.formatted(SEAT_ID, CUSTOMER_ID, BOOKED_DAY)));
     }
 }

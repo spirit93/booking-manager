@@ -34,6 +34,25 @@ input {
   grid-column: 1 / -1;
 }
 
+.day-selector {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 0 4px;
+}
+
+.day-selector label {
+  font-weight: 700;
+}
+
+.day-selector input {
+  border: 1px solid #b8c6bf;
+  border-radius: 6px;
+  padding: 9px 12px;
+}
+
 .booking-header h1 {
   margin: 0 0 8px;
   font-size: clamp(2rem, 4vw, 3.25rem);

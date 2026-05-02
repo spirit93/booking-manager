@@ -1,8 +1,10 @@
 package com.vits.booking.seat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
 
 public interface SeatRepository extends JpaRepository<SeatEntity, UUID> {
@@ -12,10 +14,12 @@ public interface SeatRepository extends JpaRepository<SeatEntity, UUID> {
                    case when exists (
                        select 1
                        from BookingEntity b
-                       where b.seat = s and b.status = com.vits.booking.booking.BookingStatus.ACTIVE
+                       where b.seat = s
+                         and b.status = com.vits.booking.booking.BookingStatus.ACTIVE
+                         and b.bookedDay = :day
                    ) then true else false end as occupied
             from SeatEntity s
             order by s.label
             """)
-    List<SeatAvailabilityProjection> findAvailability();
+    List<SeatAvailabilityProjection> findAvailabilityByDay(@Param("day") LocalDate day);
 }

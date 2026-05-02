@@ -1,8 +1,8 @@
 import { requestJson } from './httpClient';
-import type { Booking, CreateBookingRequest, Seat } from '../types';
+import type { Booking, CreateBookingRequest, SeatAvailability } from '../types';
 
-export function listSeats(): Promise<Seat[]> {
-  return requestJson<Seat[]>('/api/seats');
+export function listSeatAvailability(day: string): Promise<SeatAvailability> {
+  return requestJson<SeatAvailability>(`/api/seats/availability?day=${encodeURIComponent(day)}`);
 }
 
 export function createBooking(request: CreateBookingRequest): Promise<Booking> {

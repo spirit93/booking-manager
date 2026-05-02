@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-booked-day-to-bookings
+      author: codex
+      changes:
+        - addColumn:
+            tableName: bookings
+            columns:
+              - column:
+                  name: booked_day
+                  type: date
+                  defaultValueDate: "2026-05-02"
+                  constraints:
+                    nullable: false
+        - dropDefaultValue:
+            tableName: bookings
+            columnName: booked_day
+            columnDataType: date
+      rollback:
+        - dropColumn:
+            tableName: bookings
+            columnName: booked_day
+  - changeSet:
+      id: 006-active-booking-seat-day-unique-index-postgresql
+      author: codex
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: DROP INDEX IF EXISTS uk_bookings_active_seat;
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_bookings_active_seat_day ON bookings(seat_id, booked_day) WHERE status = 'ACTIVE';
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS uk_bookings_active_seat_day;
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_bookings_active_seat ON bookings(seat_id) WHERE status = 'ACTIVE';
+  - changeSet:
+      id: 007-active-booking-seat-day-unique-index-h2
+      author: codex
+      dbms: h2
+      changes:
+        - sql:
+            sql: DROP INDEX IF EXISTS uk_bookings_active_seat;
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_bookings_active_seat_day ON bookings(seat_id, booked_day, status);
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS uk_bookings_active_seat_day;
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_bookings_active_seat ON bookings(seat_id, status);

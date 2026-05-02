@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createBooking, listSeats } from './bookingApi';
+import { createBooking, listSeatAvailability } from './bookingApi';
 import { BookingApiError } from '../types';
 
 describe('bookingApi', () => {
@@ -7,11 +7,11 @@ describe('bookingApi', () => {
     vi.restoreAllMocks();
   });
 
-  it('loads seats from the REST contract', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response([{ id: 'seat-1', label: 'A1', status: 'AVAILABLE' }])));
+  it('loads day-specific seat availability from the REST contract', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ day: '2026-05-02', seats: [{ id: 'seat-1', label: 'A1', status: 'AVAILABLE' }] })));
 
-    await expect(listSeats()).resolves.toEqual([{ id: 'seat-1', label: 'A1', status: 'AVAILABLE' }]);
-    expect(fetch).toHaveBeenCalledWith('/api/seats', expect.any(Object));
+    await expect(listSeatAvailability('2026-05-02')).resolves.toEqual({ day: '2026-05-02', seats: [{ id: 'seat-1', label: 'A1', status: 'AVAILABLE' }] });
+    expect(fetch).toHaveBeenCalledWith('/api/seats/availability?day=2026-05-02', expect.any(Object));
   });
 
   it('parses validation error payloads', async () => {
@@ -29,7 +29,7 @@ describe('bookingApi', () => {
       )
     );
 
-    await expect(createBooking({ seatId: 'seat-1', customerId: '' })).rejects.toMatchObject({
+    await expect(createBooking({ seatId: 'seat-1', customerId: '', bookedDay: '2026-05-02' })).rejects.toMatchObject({
       status: 400,
       code: 'VALIDATION_ERROR',
       fieldErrors: [{ field: 'customerId', message: 'Customer identifier is required.' }]
@@ -39,10 +39,32 @@ describe('bookingApi', () => {
   it('normalizes network failures as service unavailable', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')));
 
-    await expect(listSeats()).rejects.toMatchObject({
+    await expect(listSeatAvailability('2026-05-02')).rejects.toMatchObject({
       status: 503,
       code: 'SERVICE_UNAVAILABLE'
     });
+  });
+
+  it('sends bookedDay when creating a booking', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        response({
+          id: 'booking-1',
+          seatId: 'seat-1',
+          customerId: 'customer-1',
+          bookedDay: '2026-05-02',
+          status: 'ACTIVE',
+          createdAt: '2026-05-02T00:00:00Z'
+        }, 201)
+      )
+    );
+
+    await createBooking({ seatId: 'seat-1', customerId: 'customer-1', bookedDay: '2026-05-02' });
+
+    expect(fetch).toHaveBeenCalledWith('/api/bookings', expect.objectContaining({
+      body: JSON.stringify({ seatId: 'seat-1', customerId: 'customer-1', bookedDay: '2026-05-02' })
+    }));
   });
 });
 

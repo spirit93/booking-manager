@@ -6,7 +6,7 @@ export interface CreateBookingState {
   isPending: boolean;
   booking: Booking | null;
   error: BookingApiError | Error | null;
-  submit: (seatId: string, customerId: string) => Promise<Booking | null>;
+  submit: (seatId: string, customerId: string, bookedDay: string) => Promise<Booking | null>;
   reset: () => void;
 }
 
@@ -15,12 +15,12 @@ export function useCreateBooking(onCreated?: () => Promise<void> | void): Create
   const [booking, setBooking] = useState<Booking | null>(null);
   const [error, setError] = useState<BookingApiError | Error | null>(null);
 
-  async function submit(seatId: string, customerId: string) {
+  async function submit(seatId: string, customerId: string, bookedDay: string) {
     setIsPending(true);
     setError(null);
     setBooking(null);
     try {
-      const created = await createBooking({ seatId, customerId });
+      const created = await createBooking({ seatId, customerId, bookedDay });
       setBooking(created);
       await onCreated?.();
       return created;

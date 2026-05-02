@@ -7,15 +7,22 @@ export interface Seat {
   status: SeatStatus;
 }
 
+export interface SeatAvailability {
+  day: string;
+  seats: Seat[];
+}
+
 export interface CreateBookingRequest {
   seatId: string;
   customerId: string;
+  bookedDay: string;
 }
 
 export interface Booking {
   id: string;
   seatId: string;
   customerId: string;
+  bookedDay: string;
   status: BookingStatus;
   createdAt: string;
 }
@@ -35,6 +42,7 @@ export interface ApiErrorBody {
 export class BookingApiError extends Error {
   readonly status: number;
   readonly code: string;
+  readonly details: Record<string, unknown>;
   readonly fieldErrors: FieldError[];
 
   constructor(status: number, body: ApiErrorBody) {
@@ -42,6 +50,7 @@ export class BookingApiError extends Error {
     this.name = 'BookingApiError';
     this.status = status;
     this.code = body.code;
+    this.details = body.details ?? {};
     this.fieldErrors = body.fieldErrors ?? [];
   }
 }

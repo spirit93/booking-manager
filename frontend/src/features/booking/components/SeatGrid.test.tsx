@@ -13,6 +13,7 @@ describe('SeatGrid', () => {
           { id: '1', label: 'A1', status: 'AVAILABLE' },
           { id: '2', label: 'A2', status: 'OCCUPIED' }
         ]}
+        selectedDay="2026-05-02"
         selectedSeatId={null}
         onSelectSeat={onSelectSeat}
       />

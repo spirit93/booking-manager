@@ -16,6 +16,7 @@ describe('useCreateBooking', () => {
           id: 'booking-1',
           seatId: 'seat-1',
           customerId: 'customer-1',
+          bookedDay: '2026-05-02',
           status: 'ACTIVE',
           createdAt: '2026-05-02T00:00:00Z'
         }, 201)
@@ -24,9 +25,30 @@ describe('useCreateBooking', () => {
 
     const { result } = renderHook(() => useCreateBooking(refresh));
 
-    await act(() => result.current.submit('seat-1', 'customer-1'));
+    await act(() => result.current.submit('seat-1', 'customer-1', '2026-05-02'));
 
     await waitFor(() => expect(result.current.booking?.id).toBe('booking-1'));
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it('refreshes selected-day availability after a conflict', async () => {
+    const refresh = vi.fn();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        json({
+          code: 'BOOKING_CONFLICT',
+          message: 'Selected seat is no longer available for 2026-05-02.',
+          details: { bookedDay: '2026-05-02' }
+        }, 409)
+      )
+    );
+
+    const { result } = renderHook(() => useCreateBooking(refresh));
+
+    await act(() => result.current.submit('seat-1', 'customer-1', '2026-05-02'));
+
+    await waitFor(() => expect(result.current.error?.message).toContain('2026-05-02'));
     expect(refresh).toHaveBeenCalled();
   });
 });

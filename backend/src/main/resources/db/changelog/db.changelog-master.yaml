@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changes/001-create-seat-booking-schema.yaml
+  - include:
+      file: db/changelog/changes/002-add-booked-day-to-bookings.yaml
