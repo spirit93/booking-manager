@@ -1,0 +1,171 @@
+openapi: 3.1.0
+info:
+  title: Booking Manager Day Seat Booking API
+  version: 0.1.0
+  description: Contract for viewing day-based seat availability and creating seat bookings.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/seats/availability:
+    get:
+      summary: Get seat availability for a calendar day
+      description: Additive endpoint for day-scoped seat availability. Existing clients are unaffected; callers must supply an ISO `YYYY-MM-DD` day query parameter.
+      operationId: getSeatAvailability
+      parameters:
+        - name: day
+          in: query
+          required: true
+          description: Booking day in ISO YYYY-MM-DD format.
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Availability for the selected day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeatAvailabilityResponse"
+        "400":
+          description: Missing or invalid day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/bookings:
+    post:
+      summary: Book an available seat for a calendar day
+      description: Additive command endpoint for creating one active full-day seat booking. Duplicate active bookings for the same seat and day return `409` with the stable `SEAT_ALREADY_BOOKED` error code.
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingRequest"
+      responses:
+        "201":
+          description: Booking created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "400":
+          description: Invalid booking request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Seat does not exist or is not bookable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Seat is already occupied for the requested day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+components:
+  schemas:
+    SeatAvailabilityResponse:
+      type: object
+      required:
+        - day
+        - seats
+      properties:
+        day:
+          type: string
+          format: date
+        seats:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeatAvailabilityItem"
+    SeatAvailabilityItem:
+      type: object
+      required:
+        - seatId
+        - label
+        - status
+      properties:
+        seatId:
+          type: string
+          description: Stable seat identifier.
+        label:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - OCCUPIED
+        bookingId:
+          type: string
+          description: Present only when the seat is occupied and safe to expose.
+    CreateBookingRequest:
+      type: object
+      required:
+        - seatId
+        - day
+      properties:
+        seatId:
+          type: string
+          minLength: 1
+        day:
+          type: string
+          format: date
+    BookingResponse:
+      type: object
+      required:
+        - bookingId
+        - seatId
+        - day
+        - status
+        - createdAt
+      properties:
+        bookingId:
+          type: string
+        seatId:
+          type: string
+        day:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - ACTIVE
+        createdAt:
+          type: string
+          format: date-time
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          examples:
+            - VALIDATION_ERROR
+            - SEAT_NOT_FOUND
+            - SEAT_ALREADY_BOOKED
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties:
+            type: string

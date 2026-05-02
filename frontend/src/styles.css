@@ -1,0 +1,162 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f6f7f9;
+  color: #1f2933;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.booking-page {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.booking-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #d8dee6;
+}
+
+.booking-toolbar h1 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+}
+
+.booking-toolbar p,
+.booking-panel p {
+  margin: 0;
+  color: #52606d;
+}
+
+.date-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.date-field input {
+  min-width: 180px;
+  border: 1px solid #bcccdc;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: white;
+}
+
+.booking-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.seat-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.seat-button {
+  min-height: 84px;
+  border: 2px solid #9fb3c8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2933;
+  display: grid;
+  gap: 4px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.seat-button span {
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.seat-button small {
+  color: #52606d;
+}
+
+.seat-button.available:hover,
+.seat-button.available:focus-visible,
+.seat-button.selected {
+  border-color: #0e7490;
+  background: #ecfeff;
+  outline: none;
+}
+
+.seat-button.occupied {
+  border-color: #cbd2d9;
+  background: #e4e7eb;
+  color: #7b8794;
+  cursor: not-allowed;
+}
+
+.booking-panel {
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.booking-panel h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.booking-panel button {
+  border: 0;
+  border-radius: 6px;
+  padding: 11px 14px;
+  background: #0f766e;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.booking-panel button:disabled {
+  background: #9aa5b1;
+  cursor: not-allowed;
+}
+
+.success-state {
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.error-state {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 20px;
+  border: 1px dashed #9fb3c8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .booking-page {
+    padding: 20px;
+  }
+
+  .booking-toolbar,
+  .booking-workspace {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}

@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${BOOKING_DB_URL:jdbc:postgresql://localhost:5433/booking_manager}
+    username: ${BOOKING_DB_USERNAME:postgres}
+    password: ${BOOKING_DB_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+server:
+  port: 8080

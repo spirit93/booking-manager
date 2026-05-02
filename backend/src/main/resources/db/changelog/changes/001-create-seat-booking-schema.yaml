@@ -1,0 +1,123 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-seats
+      author: codex
+      changes:
+        - createTable:
+            tableName: seats
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: row_label
+                  type: varchar(16)
+              - column:
+                  name: position
+                  type: int
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: id
+                  type: varchar(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: seat_id
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_bookings_seat
+                    references: seats(id)
+              - column:
+                  name: booking_day
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: bookings
+            columnNames: seat_id, booking_day, status
+            constraintName: uq_bookings_active_seat_day
+        - createIndex:
+            tableName: bookings
+            indexName: ix_bookings_day_status
+            columns:
+              - column:
+                  name: booking_day
+              - column:
+                  name: status
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: A1 }
+              - column: { name: label, value: A1 }
+              - column: { name: row_label, value: A }
+              - column: { name: position, valueNumeric: 1 }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: A2 }
+              - column: { name: label, value: A2 }
+              - column: { name: row_label, value: A }
+              - column: { name: position, valueNumeric: 2 }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: A3 }
+              - column: { name: label, value: A3 }
+              - column: { name: row_label, value: A }
+              - column: { name: position, valueNumeric: 3 }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: B1 }
+              - column: { name: label, value: B1 }
+              - column: { name: row_label, value: B }
+              - column: { name: position, valueNumeric: 4 }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: B2 }
+              - column: { name: label, value: B2 }
+              - column: { name: row_label, value: B }
+              - column: { name: position, valueNumeric: 5 }
+              - column: { name: enabled, valueBoolean: true }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: B3 }
+              - column: { name: label, value: B3 }
+              - column: { name: row_label, value: B }
+              - column: { name: position, valueNumeric: 6 }
+              - column: { name: enabled, valueBoolean: true }

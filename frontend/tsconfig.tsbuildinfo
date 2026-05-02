@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/booking/seatbookingpage.test.tsx","./src/booking/seatbookingpage.tsx","./src/booking/seatmap.tsx","./src/booking/api.ts","./src/booking/types.ts","./src/booking/useseatavailability.ts","./src/shared/request.ts","./src/test/setup.ts"],"version":"5.9.3"}
