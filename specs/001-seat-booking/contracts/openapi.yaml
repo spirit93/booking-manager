@@ -1,0 +1,183 @@
+openapi: 3.1.0
+info:
+  title: Seat Booking API
+  version: 0.1.0
+  description: REST contract for viewing seat availability and booking one available seat.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/seats:
+    get:
+      summary: List bookable seats with availability
+      operationId: listSeats
+      responses:
+        '200':
+          description: Seats returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Seat'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /api/bookings:
+    post:
+      summary: Book one available seat
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Seat is no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                seatOccupied:
+                  value:
+                    code: SEAT_UNAVAILABLE
+                    message: Selected seat is no longer available.
+                    details:
+                      seatId: 018f6ff5-9055-7c82-b0de-83cfd0bd9910
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  schemas:
+    Seat:
+      type: object
+      required:
+        - id
+        - label
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - OCCUPIED
+    CreateBookingRequest:
+      type: object
+      required:
+        - seatId
+        - customerId
+      properties:
+        seatId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+    Booking:
+      type: object
+      required:
+        - id
+        - seatId
+        - customerId
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        seatId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - ACTIVE
+        createdAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            fieldErrors:
+              type: array
+              items:
+                type: object
+                required:
+                  - field
+                  - message
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+  responses:
+    ValidationError:
+      description: Request payload is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+          examples:
+            missingCustomer:
+              value:
+                code: VALIDATION_ERROR
+                message: Request contains invalid fields.
+                fieldErrors:
+                  - field: customerId
+                    message: Customer identifier is required.
+    NotFound:
+      description: Referenced resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missingSeat:
+              value:
+                code: SEAT_NOT_FOUND
+                message: Selected seat was not found.
+    ServiceUnavailable:
+      description: Service is temporarily unable to complete the request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            temporaryFailure:
+              value:
+                code: SERVICE_UNAVAILABLE
+                message: Booking service is temporarily unavailable. Try again later.

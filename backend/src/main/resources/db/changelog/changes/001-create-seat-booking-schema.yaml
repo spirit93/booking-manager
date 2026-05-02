@@ -1,0 +1,122 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-seats
+      author: codex
+      changes:
+        - createTable:
+            tableName: seats
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: label
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: seat_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_bookings_seat
+                    references: seats(id)
+              - column:
+                  name: customer_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: bookings
+            indexName: idx_bookings_seat
+            columns:
+              - column:
+                  name: seat_id
+      rollback:
+        - dropTable:
+            tableName: bookings
+        - dropTable:
+            tableName: seats
+  - changeSet:
+      id: 002-active-booking-unique-index-postgresql
+      author: codex
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_bookings_active_seat ON bookings(seat_id) WHERE status = 'ACTIVE';
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS uk_bookings_active_seat;
+  - changeSet:
+      id: 003-active-booking-unique-index-h2
+      author: codex
+      dbms: h2
+      changes:
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_bookings_active_seat ON bookings(seat_id, status);
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS uk_bookings_active_seat;
+  - changeSet:
+      id: 004-seed-seats
+      author: codex
+      changes:
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: "018f6ff5-9055-7c82-b0de-83cfd0bd9901" }
+              - column: { name: label, value: "A1" }
+              - column: { name: created_at, value: "2026-05-02 00:00:00" }
+              - column: { name: updated_at, value: "2026-05-02 00:00:00" }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: "018f6ff5-9055-7c82-b0de-83cfd0bd9902" }
+              - column: { name: label, value: "A2" }
+              - column: { name: created_at, value: "2026-05-02 00:00:00" }
+              - column: { name: updated_at, value: "2026-05-02 00:00:00" }
+        - insert:
+            tableName: seats
+            columns:
+              - column: { name: id, value: "018f6ff5-9055-7c82-b0de-83cfd0bd9903" }
+              - column: { name: label, value: "A3" }
+              - column: { name: created_at, value: "2026-05-02 00:00:00" }
+              - column: { name: updated_at, value: "2026-05-02 00:00:00" }
