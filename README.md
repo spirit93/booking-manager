@@ -27,6 +27,18 @@ From `backend/`:
 
 Liquibase applies `backend/src/main/resources/db/changelog/db.changelog-master.yaml` on startup.
 
+Seat availability is day-scoped:
+
+```powershell
+Invoke-RestMethod "http://localhost:8080/api/seats/availability?day=2026-05-02"
+```
+
+Bookings require a `bookedDay` value and allow the same seat on different days while rejecting duplicate active bookings for the same seat and day:
+
+```powershell
+Invoke-RestMethod "http://localhost:8080/api/bookings" -Method Post -ContentType "application/json" -Body '{"seatId":"018f6ff5-9055-7c82-b0de-83cfd0bd9901","customerId":"018f6ff5-9055-7c82-b0de-83cfd0bd9910","bookedDay":"2026-05-02"}'
+```
+
 ## Frontend
 
 From `frontend/`:
@@ -34,6 +46,7 @@ From `frontend/`:
 ```powershell
 npm install
 npm test
+npm run build
 npm run dev
 ```
 

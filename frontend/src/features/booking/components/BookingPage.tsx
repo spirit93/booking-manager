@@ -6,7 +6,7 @@ import { BookingForm } from './BookingForm';
 import { SeatGrid } from './SeatGrid';
 
 export function BookingPage() {
-  const { seats, isLoading, error, refresh } = useSeats();
+  const { seats, selectedDay, setSelectedDay, isLoading, error, refresh } = useSeats();
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null);
   const booking = useCreateBooking(refresh);
 
@@ -28,7 +28,7 @@ export function BookingPage() {
     if (!selectedSeat) {
       return;
     }
-    const created = await booking.submit(selectedSeat.id, customerId);
+    const created = await booking.submit(selectedSeat.id, customerId, selectedDay);
     if (created) {
       setSelectedSeatId(null);
     }
@@ -42,6 +42,21 @@ export function BookingPage() {
           <p>Choose an available seat and confirm the booking with a customer identifier.</p>
         </header>
 
+        <div className="day-selector">
+          <label htmlFor="booking-day">Booking day</label>
+          <input
+            id="booking-day"
+            name="booking-day"
+            type="date"
+            value={selectedDay}
+            onChange={(event) => {
+              booking.reset();
+              setSelectedSeatId(null);
+              setSelectedDay(event.target.value);
+            }}
+          />
+        </div>
+
         <div>
           {isLoading ? <p className="status-copy">Loading seat availability...</p> : null}
           {error ? (
@@ -50,7 +65,7 @@ export function BookingPage() {
             </div>
           ) : null}
           {!isLoading && !error && !hasSeats ? <p className="status-copy">No seats are configured yet.</p> : null}
-          {!isLoading && noAvailableSeats ? <p className="status-copy">All seats are currently occupied.</p> : null}
+          {!isLoading && noAvailableSeats ? <p className="status-copy">All seats are occupied for {selectedDay}.</p> : null}
           {booking.error ? (
             <div className="alert alert-error" role="alert">
               {formatBookingError(booking.error)}
@@ -58,15 +73,15 @@ export function BookingPage() {
           ) : null}
           {booking.booking ? (
             <div className="alert alert-success" role="status">
-              Booking confirmed for customer {booking.booking.customerId}.
+              Booking confirmed for customer {booking.booking.customerId} on {booking.booking.bookedDay}.
             </div>
           ) : null}
           {hasSeats ? (
-            <SeatGrid seats={seats} selectedSeatId={selectedSeatId} onSelectSeat={handleSelectSeat} />
+            <SeatGrid seats={seats} selectedDay={selectedDay} selectedSeatId={selectedSeatId} onSelectSeat={handleSelectSeat} />
           ) : null}
         </div>
 
-        <BookingForm selectedSeat={selectedSeat} isPending={booking.isPending} onSubmit={handleSubmit} />
+        <BookingForm selectedSeat={selectedSeat} selectedDay={selectedDay} isPending={booking.isPending} onSubmit={handleSubmit} />
       </section>
     </main>
   );
@@ -76,6 +91,9 @@ function formatBookingError(error: Error): string {
   if (error instanceof BookingApiError) {
     if (error.fieldErrors.length > 0) {
       return error.fieldErrors.map((fieldError) => fieldError.message).join(' ');
+    }
+    if (error.status === 409 && typeof error.details.bookedDay === 'string') {
+      return `${error.message} Refreshing availability for ${error.details.bookedDay}.`;
     }
     return error.message;
   }

@@ -7,6 +7,7 @@ import com.vits.booking.seat.SeatEntity;
 import com.vits.booking.seat.SeatRepository;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -24,28 +25,31 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final SeatRepository seatRepository;
+    private final BookingDayValidator bookingDayValidator;
     private final Clock clock;
 
     @Autowired
-    public BookingService(BookingRepository bookingRepository, SeatRepository seatRepository) {
-        this(bookingRepository, seatRepository, Clock.systemUTC());
+    public BookingService(BookingRepository bookingRepository, SeatRepository seatRepository, BookingDayValidator bookingDayValidator) {
+        this(bookingRepository, seatRepository, bookingDayValidator, Clock.systemUTC());
     }
 
-    BookingService(BookingRepository bookingRepository, SeatRepository seatRepository, Clock clock) {
+    BookingService(BookingRepository bookingRepository, SeatRepository seatRepository, BookingDayValidator bookingDayValidator, Clock clock) {
         this.bookingRepository = bookingRepository;
         this.seatRepository = seatRepository;
+        this.bookingDayValidator = bookingDayValidator;
         this.clock = clock;
     }
 
     @Transactional
     public BookingResponse createBooking(CreateBookingRequest request) {
+        LocalDate bookedDay = bookingDayValidator.validate(request.bookedDay(), "bookedDay");
         try {
             SeatEntity seat = seatRepository.findById(request.seatId())
                     .orElseThrow(() -> new ResourceNotFoundException("SEAT_NOT_FOUND", "Selected seat was not found."));
 
-            if (bookingRepository.existsBySeatIdAndStatus(request.seatId(), BookingStatus.ACTIVE)) {
-                log.info("booking_conflict seatId={} reason=already_active", request.seatId());
-                throw seatUnavailable(request.seatId());
+            if (bookingRepository.existsBySeatIdAndBookedDayAndStatus(request.seatId(), bookedDay, BookingStatus.ACTIVE)) {
+                log.info("booking_conflict seatId={} bookedDay={} reason=already_active", request.seatId(), bookedDay);
+                throw seatUnavailable(request.seatId(), bookedDay);
             }
 
             Instant now = Instant.now(clock);
@@ -53,6 +57,7 @@ public class BookingService {
                     UUID.randomUUID(),
                     seat,
                     request.customerId(),
+                    bookedDay,
                     BookingStatus.ACTIVE,
                     now,
                     now
@@ -61,18 +66,18 @@ public class BookingService {
         } catch (BookingConflictException | ResourceNotFoundException exception) {
             throw exception;
         } catch (DataIntegrityViolationException exception) {
-            log.info("booking_conflict seatId={} reason=database_unique_constraint", request.seatId());
-            throw seatUnavailable(request.seatId());
+            log.info("booking_conflict seatId={} bookedDay={} reason=database_unique_constraint", request.seatId(), bookedDay);
+            throw seatUnavailable(request.seatId(), bookedDay);
         } catch (DataAccessException exception) {
-            log.warn("booking_temporary_failure seatId={}", request.seatId(), exception);
+            log.warn("booking_temporary_failure seatId={} bookedDay={}", request.seatId(), bookedDay, exception);
             throw new BookingServiceUnavailableException("Booking could not be completed.", exception);
         }
     }
 
-    private BookingConflictException seatUnavailable(UUID seatId) {
+    private BookingConflictException seatUnavailable(UUID seatId, LocalDate bookedDay) {
         return new BookingConflictException(
-                "Selected seat is no longer available.",
-                Map.of("seatId", seatId)
+                "Selected seat is no longer available for " + bookedDay + ".",
+                Map.of("seatId", seatId, "bookedDay", bookedDay)
         );
     }
 }

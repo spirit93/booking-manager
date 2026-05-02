@@ -18,3 +18,8 @@ server:
 logging:
   level:
     com.vits.booking: ${BOOKING_LOG_LEVEL:INFO}
+
+booking:
+  days:
+    min: ${BOOKING_DAY_MIN:2026-01-01}
+    max: ${BOOKING_DAY_MAX:2026-12-31}

@@ -13,24 +13,26 @@ describe('BookingPage', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn()
-        .mockResolvedValueOnce(json([{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'AVAILABLE' }]))
+        .mockResolvedValueOnce(json({ day: '2026-05-02', seats: [{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'AVAILABLE' }] }))
         .mockResolvedValueOnce(json({
           id: 'booking-1',
           seatId: '018f6ff5-9055-7c82-b0de-83cfd0bd9901',
           customerId: '018f6ff5-9055-7c82-b0de-83cfd0bd9910',
+          bookedDay: '2026-05-02',
           status: 'ACTIVE',
           createdAt: '2026-05-02T00:00:00Z'
         }, 201))
-        .mockResolvedValueOnce(json([{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'OCCUPIED' }]))
+        .mockResolvedValueOnce(json({ day: '2026-05-02', seats: [{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'OCCUPIED' }] }))
     );
 
     renderBooking(<BookingPage />);
 
+    expect(screen.getByLabelText('Booking day')).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('button', { name: 'A1, available' }));
     await userEvent.type(screen.getByLabelText('Customer ID'), '018f6ff5-9055-7c82-b0de-83cfd0bd9910');
     await userEvent.click(screen.getByRole('button', { name: 'Confirm booking' }));
 
-    await waitFor(() => expect(screen.getByText(/Booking confirmed/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Booking confirmed.*2026-05-02/)).toBeInTheDocument());
     expect(await screen.findByRole('button', { name: 'A1, occupied' })).toBeDisabled();
   });
 });

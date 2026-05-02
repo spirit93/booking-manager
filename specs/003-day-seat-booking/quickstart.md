@@ -25,6 +25,7 @@ Expected coverage includes:
 ```powershell
 cd frontend
 npm test
+npm run build
 ```
 
 Expected coverage includes:
@@ -51,7 +52,8 @@ Expected coverage includes:
 
 ```powershell
 Invoke-RestMethod "http://localhost:8080/api/seats/availability?day=2026-05-02"
-Invoke-RestMethod "http://localhost:8080/api/bookings" -Method Post -ContentType "application/json" -Body '{"seatId":"00000000-0000-0000-0000-000000000001","customerId":"00000000-0000-0000-0000-000000000010","bookedDay":"2026-05-02"}'
+Invoke-RestMethod "http://localhost:8080/api/bookings" -Method Post -ContentType "application/json" -Body '{"seatId":"018f6ff5-9055-7c82-b0de-83cfd0bd9901","customerId":"018f6ff5-9055-7c82-b0de-83cfd0bd9910","bookedDay":"2026-05-02"}'
+Invoke-RestMethod "http://localhost:8080/api/seats/availability?day=2026-05-03"
 ```
 
-Replace IDs with values present in the local database seed data.
+The sample `seatId` values are from the default Liquibase seed data. Replace them if your local database uses different seed rows.

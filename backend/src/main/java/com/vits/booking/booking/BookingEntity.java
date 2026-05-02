@@ -12,12 +12,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(
         name = "bookings",
-        uniqueConstraints = @UniqueConstraint(name = "uk_bookings_active_seat_test", columnNames = {"seat_id", "status"})
+        uniqueConstraints = @UniqueConstraint(name = "uk_bookings_active_seat_day_test", columnNames = {"seat_id", "booked_day", "status"})
 )
 public class BookingEntity {
 
@@ -30,6 +31,9 @@ public class BookingEntity {
 
     @Column(name = "customer_id", nullable = false)
     private UUID customerId;
+
+    @Column(name = "booked_day", nullable = false)
+    private LocalDate bookedDay;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,10 +48,11 @@ public class BookingEntity {
     protected BookingEntity() {
     }
 
-    public BookingEntity(UUID id, SeatEntity seat, UUID customerId, BookingStatus status, Instant createdAt, Instant updatedAt) {
+    public BookingEntity(UUID id, SeatEntity seat, UUID customerId, LocalDate bookedDay, BookingStatus status, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.seat = seat;
         this.customerId = customerId;
+        this.bookedDay = bookedDay;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -63,6 +68,10 @@ public class BookingEntity {
 
     public UUID getCustomerId() {
         return customerId;
+    }
+
+    public LocalDate getBookedDay() {
+        return bookedDay;
     }
 
     public BookingStatus getStatus() {

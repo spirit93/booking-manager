@@ -21,9 +21,9 @@ describe('BookingPage error flows', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn()
-        .mockResolvedValueOnce(json([{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'AVAILABLE' }]))
-        .mockResolvedValueOnce(errorJson('SEAT_UNAVAILABLE', 'Selected seat is no longer available.', 409))
-        .mockResolvedValueOnce(json([{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'OCCUPIED' }]))
+        .mockResolvedValueOnce(json({ day: '2026-05-02', seats: [{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'AVAILABLE' }] }))
+        .mockResolvedValueOnce(errorJson('BOOKING_CONFLICT', 'Selected seat is no longer available for 2026-05-02.', 409, { bookedDay: '2026-05-02' }))
+        .mockResolvedValueOnce(json({ day: '2026-05-02', seats: [{ id: '018f6ff5-9055-7c82-b0de-83cfd0bd9901', label: 'A1', status: 'OCCUPIED' }] }))
     );
 
     renderBooking(<BookingPage />);
@@ -32,7 +32,7 @@ describe('BookingPage error flows', () => {
     await userEvent.type(screen.getByLabelText('Customer ID'), '018f6ff5-9055-7c82-b0de-83cfd0bd9910');
     await userEvent.click(screen.getByRole('button', { name: 'Confirm booking' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Selected seat is no longer available.');
+    expect(await screen.findByRole('alert')).toHaveTextContent('2026-05-02');
     expect(await screen.findByRole('button', { name: 'A1, occupied' })).toBeDisabled();
   });
 });
@@ -44,6 +44,6 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function errorJson(code: string, message: string, status: number) {
-  return json({ code, message }, status);
+function errorJson(code: string, message: string, status: number, details?: Record<string, unknown>) {
+  return json({ code, message, details }, status);
 }

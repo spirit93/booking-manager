@@ -2,13 +2,14 @@ import type { Seat } from '../types';
 
 interface SeatGridProps {
   seats: Seat[];
+  selectedDay: string;
   selectedSeatId: string | null;
   onSelectSeat: (seat: Seat) => void;
 }
 
-export function SeatGrid({ seats, selectedSeatId, onSelectSeat }: SeatGridProps) {
+export function SeatGrid({ seats, selectedDay, selectedSeatId, onSelectSeat }: SeatGridProps) {
   return (
-    <div className="seat-grid" role="list" aria-label="Bookable seats">
+    <div className="seat-grid" role="list" aria-label={`Bookable seats for ${selectedDay}`}>
       {seats.map((seat) => {
         const occupied = seat.status === 'OCCUPIED';
         return (

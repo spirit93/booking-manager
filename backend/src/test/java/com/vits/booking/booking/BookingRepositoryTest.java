@@ -3,6 +3,7 @@ package com.vits.booking.booking;
 import com.vits.booking.seat.SeatEntity;
 import com.vits.booking.seat.SeatRepository;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +35,14 @@ class BookingRepositoryTest {
                 UUID.randomUUID(),
                 seat,
                 UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9910"),
+                LocalDate.parse("2026-05-02"),
                 BookingStatus.ACTIVE,
                 now,
                 now
         ));
 
         assertThat(bookingRepository.existsById(saved.getId())).isTrue();
-        assertThat(bookingRepository.existsBySeatIdAndStatus(seat.getId(), BookingStatus.ACTIVE)).isTrue();
+        assertThat(bookingRepository.existsBySeatIdAndBookedDayAndStatus(seat.getId(), LocalDate.parse("2026-05-02"), BookingStatus.ACTIVE)).isTrue();
+        assertThat(bookingRepository.existsBySeatIdAndBookedDayAndStatus(seat.getId(), LocalDate.parse("2026-05-03"), BookingStatus.ACTIVE)).isFalse();
     }
 }

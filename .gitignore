@@ -29,6 +29,7 @@ replay_pid*
 
 # Node / frontend
 node_modules/
+.vite/
 dist/
 build/
 coverage/
@@ -38,6 +39,7 @@ coverage/
 .gradle/
 backend/build/
 target/
+out/
 
 # Local configuration
 .env
