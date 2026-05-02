@@ -12,8 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.vits.booking.support.MvcTestSupport.CUSTOMER_ID;
 import static com.vits.booking.support.MvcTestSupport.BOOKED_DAY;
+import static com.vits.booking.support.MvcTestSupport.CUSTOMER_EMAIL;
 import static com.vits.booking.support.MvcTestSupport.SEAT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,7 +37,7 @@ class BookingControllerTest {
         when(bookingService.createBooking(any())).thenReturn(new BookingResponse(
                 UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9920"),
                 UUID.fromString(SEAT_ID),
-                UUID.fromString(CUSTOMER_ID),
+                CUSTOMER_EMAIL,
                 LocalDate.parse(BOOKED_DAY),
                 BookingStatus.ACTIVE,
                 Instant.parse("2026-05-02T00:00:00Z")
@@ -46,10 +46,11 @@ class BookingControllerTest {
         mvc.perform(post("/api/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"seatId":"%s","customerId":"%s","bookedDay":"%s"}
-                                """.formatted(SEAT_ID, CUSTOMER_ID, BOOKED_DAY)))
+                                {"seatId":"%s","customerEmail":"%s","bookedDay":"%s"}
+                                """.formatted(SEAT_ID, CUSTOMER_EMAIL, BOOKED_DAY)))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/bookings/018f6ff5-9055-7c82-b0de-83cfd0bd9920"))
+                .andExpect(jsonPath("$.customerEmail").value(CUSTOMER_EMAIL))
                 .andExpect(jsonPath("$.bookedDay").value(BOOKED_DAY))
                 .andExpect(jsonPath("$.status").value("ACTIVE"));
     }

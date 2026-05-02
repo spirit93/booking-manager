@@ -14,14 +14,14 @@ export interface SeatAvailability {
 
 export interface CreateBookingRequest {
   seatId: string;
-  customerId: string;
+  customerEmail: string;
   bookedDay: string;
 }
 
 export interface Booking {
   id: string;
   seatId: string;
-  customerId: string;
+  customerEmail: string;
   bookedDay: string;
   status: BookingStatus;
   createdAt: string;

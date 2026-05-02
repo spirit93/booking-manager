@@ -24,11 +24,11 @@ export function BookingPage() {
     }
   }
 
-  async function handleSubmit(customerId: string) {
+  async function handleSubmit(customerEmail: string) {
     if (!selectedSeat) {
       return;
     }
-    const created = await booking.submit(selectedSeat.id, customerId, selectedDay);
+    const created = await booking.submit(selectedSeat.id, customerEmail, selectedDay);
     if (created) {
       setSelectedSeatId(null);
     }
@@ -39,7 +39,7 @@ export function BookingPage() {
       <section className="booking-layout" aria-labelledby="booking-title">
         <header className="booking-header">
           <h1 id="booking-title">Seat booking</h1>
-          <p>Choose an available seat and confirm the booking with a customer identifier.</p>
+          <p>Choose an available seat and confirm the booking with a customer email.</p>
         </header>
 
         <div className="day-selector">
@@ -73,7 +73,7 @@ export function BookingPage() {
           ) : null}
           {booking.booking ? (
             <div className="alert alert-success" role="status">
-              Booking confirmed for customer {booking.booking.customerId} on {booking.booking.bookedDay}.
+              Booking confirmed for customer {booking.booking.customerEmail} on {booking.booking.bookedDay}.
             </div>
           ) : null}
           {hasSeats ? (

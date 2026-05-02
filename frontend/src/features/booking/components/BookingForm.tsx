@@ -5,13 +5,13 @@ interface BookingFormProps {
   selectedSeat: Seat | null;
   selectedDay: string;
   isPending: boolean;
-  onSubmit: (customerId: string) => Promise<void>;
+  onSubmit: (customerEmail: string) => Promise<void>;
 }
 
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function BookingForm({ selectedSeat, selectedDay, isPending, onSubmit }: BookingFormProps) {
-  const [customerId, setCustomerId] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const canSubmit = Boolean(selectedSeat) && !isPending;
 
@@ -21,12 +21,12 @@ export function BookingForm({ selectedSeat, selectedDay, isPending, onSubmit }: 
       setValidationError('Select an available seat first.');
       return;
     }
-    if (!uuidPattern.test(customerId)) {
-      setValidationError('Enter a valid customer UUID.');
+    if (!emailPattern.test(customerEmail.trim())) {
+      setValidationError('Enter a valid customer email.');
       return;
     }
     setValidationError(null);
-    await onSubmit(customerId);
+    await onSubmit(customerEmail.trim());
   }
 
   return (
@@ -36,18 +36,19 @@ export function BookingForm({ selectedSeat, selectedDay, isPending, onSubmit }: 
         {selectedSeat ? `Selected seat ${selectedSeat.label} for ${selectedDay}` : `No seat selected for ${selectedDay}`}
       </p>
       <div className="field">
-        <label htmlFor="customerId">Customer ID</label>
+        <label htmlFor="customerEmail">Customer email</label>
         <input
-          id="customerId"
-          name="customerId"
-          value={customerId}
-          onChange={(event) => setCustomerId(event.target.value)}
-          placeholder="018f6ff5-9055-7c82-b0de-83cfd0bd9910"
+          id="customerEmail"
+          name="customerEmail"
+          type="email"
+          value={customerEmail}
+          onChange={(event) => setCustomerEmail(event.target.value)}
+          placeholder="customer@example.com"
           aria-invalid={Boolean(validationError)}
-          aria-describedby={validationError ? 'customerId-error' : undefined}
+          aria-describedby={validationError ? 'customerEmail-error' : undefined}
         />
         {validationError ? (
-          <span id="customerId-error" className="alert alert-error">
+          <span id="customerEmail-error" className="alert alert-error">
             {validationError}
           </span>
         ) : null}

@@ -56,7 +56,7 @@ class ActiveBookingUniquenessTest {
         return new BookingEntity(
                 UUID.randomUUID(),
                 seat,
-                UUID.randomUUID(),
+                "customer@example.com",
                 bookedDay,
                 BookingStatus.ACTIVE,
                 Instant.now(),

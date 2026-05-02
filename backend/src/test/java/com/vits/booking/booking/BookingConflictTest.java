@@ -27,7 +27,7 @@ class BookingConflictTest {
 
         assertThatThrownBy(() -> bookingService.createBooking(new CreateBookingRequest(
                 seatId,
-                UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9910"),
+                "customer@example.com",
                 LocalDate.parse("2026-05-02")
         ))).isInstanceOf(BookingConflictException.class);
     }

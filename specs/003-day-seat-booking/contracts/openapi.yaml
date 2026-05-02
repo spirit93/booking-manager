@@ -118,15 +118,16 @@ components:
       type: object
       required:
         - seatId
-        - customerId
+        - customerEmail
         - bookedDay
       properties:
         seatId:
           type: string
           format: uuid
-        customerId:
+        customerEmail:
           type: string
-          format: uuid
+          format: email
+          example: customer@example.com
         bookedDay:
           type: string
           format: date
@@ -136,7 +137,7 @@ components:
       required:
         - id
         - seatId
-        - customerId
+        - customerEmail
         - bookedDay
         - status
         - createdAt
@@ -147,9 +148,10 @@ components:
         seatId:
           type: string
           format: uuid
-        customerId:
+        customerEmail:
           type: string
-          format: uuid
+          format: email
+          example: customer@example.com
         bookedDay:
           type: string
           format: date

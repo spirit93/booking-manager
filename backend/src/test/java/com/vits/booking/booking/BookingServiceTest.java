@@ -28,17 +28,17 @@ class BookingServiceTest {
     @Test
     void createsActiveBookingForAvailableSeat() {
         UUID seatId = UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9901");
-        UUID customerId = UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9910");
+        String customerEmail = "customer@example.com";
         SeatEntity seat = new SeatEntity(seatId, "A1", Instant.now(clock), Instant.now(clock));
 
         when(seatRepository.findById(seatId)).thenReturn(Optional.of(seat));
         when(bookingRepository.existsBySeatIdAndBookedDayAndStatus(seatId, LocalDate.parse("2026-05-02"), BookingStatus.ACTIVE)).thenReturn(false);
         when(bookingRepository.saveAndFlush(any(BookingEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        BookingResponse response = bookingService.createBooking(new CreateBookingRequest(seatId, customerId, LocalDate.parse("2026-05-02")));
+        BookingResponse response = bookingService.createBooking(new CreateBookingRequest(seatId, customerEmail, LocalDate.parse("2026-05-02")));
 
         assertThat(response.seatId()).isEqualTo(seatId);
-        assertThat(response.customerId()).isEqualTo(customerId);
+        assertThat(response.customerEmail()).isEqualTo(customerEmail);
         assertThat(response.bookedDay()).isEqualTo(LocalDate.parse("2026-05-02"));
         assertThat(response.status()).isEqualTo(BookingStatus.ACTIVE);
         assertThat(response.createdAt()).isEqualTo(Instant.now(clock));
@@ -54,7 +54,7 @@ class BookingServiceTest {
 
         assertThatThrownBy(() -> bookingService.createBooking(new CreateBookingRequest(
                 seatId,
-                UUID.fromString("018f6ff5-9055-7c82-b0de-83cfd0bd9910"),
+                "customer@example.com",
                 LocalDate.parse("2026-05-02")
         ))).isInstanceOf(BookingConflictException.class);
     }

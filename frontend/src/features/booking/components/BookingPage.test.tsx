@@ -17,7 +17,7 @@ describe('BookingPage', () => {
         .mockResolvedValueOnce(json({
           id: 'booking-1',
           seatId: '018f6ff5-9055-7c82-b0de-83cfd0bd9901',
-          customerId: '018f6ff5-9055-7c82-b0de-83cfd0bd9910',
+          customerEmail: 'customer@example.com',
           bookedDay: '2026-05-02',
           status: 'ACTIVE',
           createdAt: '2026-05-02T00:00:00Z'
@@ -29,7 +29,7 @@ describe('BookingPage', () => {
 
     expect(screen.getByLabelText('Booking day')).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('button', { name: 'A1, available' }));
-    await userEvent.type(screen.getByLabelText('Customer ID'), '018f6ff5-9055-7c82-b0de-83cfd0bd9910');
+    await userEvent.type(screen.getByLabelText('Customer email'), 'customer@example.com');
     await userEvent.click(screen.getByRole('button', { name: 'Confirm booking' }));
 
     await waitFor(() => expect(screen.getByText(/Booking confirmed.*2026-05-02/)).toBeInTheDocument());

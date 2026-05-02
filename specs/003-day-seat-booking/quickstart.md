@@ -32,7 +32,7 @@ Expected coverage includes:
 
 - Day selector default and change behavior.
 - Availability reloads for the selected day.
-- Booking request payload includes the selected day.
+- Booking request payload includes the selected day and customer email.
 - Success, validation, conflict, loading, empty, and temporary failure states.
 
 ## Manual Verification
@@ -52,7 +52,7 @@ Expected coverage includes:
 
 ```powershell
 Invoke-RestMethod "http://localhost:8080/api/seats/availability?day=2026-05-02"
-Invoke-RestMethod "http://localhost:8080/api/bookings" -Method Post -ContentType "application/json" -Body '{"seatId":"018f6ff5-9055-7c82-b0de-83cfd0bd9901","customerId":"018f6ff5-9055-7c82-b0de-83cfd0bd9910","bookedDay":"2026-05-02"}'
+Invoke-RestMethod "http://localhost:8080/api/bookings" -Method Post -ContentType "application/json" -Body '{"seatId":"018f6ff5-9055-7c82-b0de-83cfd0bd9901","customerEmail":"customer@example.com","bookedDay":"2026-05-02"}'
 Invoke-RestMethod "http://localhost:8080/api/seats/availability?day=2026-05-03"
 ```
 

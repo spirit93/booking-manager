@@ -29,7 +29,7 @@ describe('BookingPage error flows', () => {
     renderBooking(<BookingPage />);
 
     await userEvent.click(await screen.findByRole('button', { name: 'A1, available' }));
-    await userEvent.type(screen.getByLabelText('Customer ID'), '018f6ff5-9055-7c82-b0de-83cfd0bd9910');
+    await userEvent.type(screen.getByLabelText('Customer email'), 'customer@example.com');
     await userEvent.click(screen.getByRole('button', { name: 'Confirm booking' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('2026-05-02');

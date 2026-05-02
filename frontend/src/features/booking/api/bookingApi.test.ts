@@ -22,17 +22,17 @@ describe('bookingApi', () => {
           {
             code: 'VALIDATION_ERROR',
             message: 'Request contains invalid fields.',
-            fieldErrors: [{ field: 'customerId', message: 'Customer identifier is required.' }]
+            fieldErrors: [{ field: 'customerEmail', message: 'Customer email is required.' }]
           },
           400
         )
       )
     );
 
-    await expect(createBooking({ seatId: 'seat-1', customerId: '', bookedDay: '2026-05-02' })).rejects.toMatchObject({
+    await expect(createBooking({ seatId: 'seat-1', customerEmail: '', bookedDay: '2026-05-02' })).rejects.toMatchObject({
       status: 400,
       code: 'VALIDATION_ERROR',
-      fieldErrors: [{ field: 'customerId', message: 'Customer identifier is required.' }]
+      fieldErrors: [{ field: 'customerEmail', message: 'Customer email is required.' }]
     } satisfies Partial<BookingApiError>);
   });
 
@@ -52,7 +52,7 @@ describe('bookingApi', () => {
         response({
           id: 'booking-1',
           seatId: 'seat-1',
-          customerId: 'customer-1',
+          customerEmail: 'customer@example.com',
           bookedDay: '2026-05-02',
           status: 'ACTIVE',
           createdAt: '2026-05-02T00:00:00Z'
@@ -60,10 +60,10 @@ describe('bookingApi', () => {
       )
     );
 
-    await createBooking({ seatId: 'seat-1', customerId: 'customer-1', bookedDay: '2026-05-02' });
+    await createBooking({ seatId: 'seat-1', customerEmail: 'customer@example.com', bookedDay: '2026-05-02' });
 
     expect(fetch).toHaveBeenCalledWith('/api/bookings', expect.objectContaining({
-      body: JSON.stringify({ seatId: 'seat-1', customerId: 'customer-1', bookedDay: '2026-05-02' })
+      body: JSON.stringify({ seatId: 'seat-1', customerEmail: 'customer@example.com', bookedDay: '2026-05-02' })
     }));
   });
 });

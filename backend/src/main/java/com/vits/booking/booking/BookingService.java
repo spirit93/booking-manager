@@ -56,7 +56,7 @@ public class BookingService {
             BookingEntity booking = new BookingEntity(
                     UUID.randomUUID(),
                     seat,
-                    request.customerId(),
+                    request.customerEmail(),
                     bookedDay,
                     BookingStatus.ACTIVE,
                     now,
